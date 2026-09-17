@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Examen Interactivo de Farmacología (200 Preguntas)</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+      --border: #cbd5e1;
+      --correct-bg: #dcfce7;
+      --correct-border: #16a34a;
+      --correct-text: #15803d;
+      --incorrect-bg: #fee2e2;
+      --incorrect-border: #dc2626;
+      --incorrect-text: #b91c1c;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 0 auto;
+      background: var(--card);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primary);
+      margin-bottom: 25px;
+    }
+
+    .question-card {
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .question-title {
+      font-weight: 600;
+      font-size: 1.05rem;
+      margin-bottom: 15px;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 15px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .option-label:hover {
+      background-color: #f1f5f9;
+    }
+
+    input[type="radio"] {
+      accent-color: var(--primary);
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Estilos de retroalimentación */
+    .option-label.correct {
+      background-color: var(--correct-bg) !important;
+      border-color: var(--correct-border) !important;
+      color: var(--correct-text);
+      font-weight: 600;
+    }
+
+    .option-label.incorrect {
+      background-color: var(--incorrect-bg) !important;
+      border-color: var(--incorrect-border) !important;
+      color: var(--incorrect-text);
+      font-weight: 600;
+    }
+
+    .explanation {
+      display: none;
+      margin-top: 15px;
+      padding: 12px 15px;
+      background-color: #fef2f2;
+      border-left: 4px solid var(--incorrect-border);
+      color: #991b1b;
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+
+    .btn-submit {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 30px;
+      transition: background-color 0.2s;
+    }
+
+    .btn-submit:hover {
+      background-color: #1d4ed8;
+    }
+
+    .reload-btn {
+      display: none;
+      width: 100%;
+      padding: 15px;
+      background-color: #059669;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    .reload-btn:hover {
+      background-color: #047857;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Examen Interactivo de Farmacología (200 Preguntas)</h1>
+  <form id="quizForm">
+    <div id="questionsContainer"></div>
+    <button type="button" class="btn-submit" onclick="gradeQuiz()">Calcular y Revisar Respuestas</button>
+    <button type="button" class="reload-btn" id="reloadBtn" onclick="location.reload()">Reiniciar Cuestionario</button>
+  </form>
+</div>
+
+<script>
+  // Banco de 200 preguntas (100 de Opción Múltiple + 100 de V/F)
+  const quizData = [
+    // --- PARTE I: Opción Múltiple (1 - 100) ---
+    { id: 1, type: "mc", q: "¿Cuál es la vía de administración de la acetilcolina que resulta ineficaz por degradación de colinesterasas?", opts: {a: "Intravenosa", b: "Oral", c: "Subcutánea", d: "Tópica"}, correct: "b", exp: "La vía oral es ineficaz porque las colinesterasas la degradan en el tracto digestivo antes de absorberse." },
+    { id: 2, type: "mc", q: "¿Qué efecto ocular es provocado por la atropina?", opts: {a: "Miosis y fotofobia", b: "Midriasis y fotofobia", c: "Miosis y glaucoma de ángulo abierto", d: "Ptosis palpebral"}, correct: "b", exp: "Al bloquear el esfínter del iris genera dilatación pupilar (midriasis) e intolerancia a la luz (fotofobia)." },
+    { id: 3, type: "mc", q: "¿Cuál de los siguientes es un efecto adverso de la atropina?", opts: {a: "Salivación profusa", b: "Miosis", c: "Sequedad de boca", d: "Cefalea pulsátil"}, correct: "c", exp: "Bloquea receptores muscarínicos disminuyendo las secreciones salivales (xerostomía)." },
+    { id: 4, type: "mc", q: "Fármaco simpaticomimético de elección en caso de paro cardiorrespiratorio:", opts: {a: "Dopamina", b: "Noradrenalina", c: "Adrenalina", d: "Isoproterenol"}, correct: "c", exp: "La Adrenalina estimula receptores Alfa y Beta restaurando el automatismo cardíaco." },
+    { id: 5, type: "mc", q: "Los insecticidas organofosforados ejercen su acción tóxica al:", opts: {a: "Bloquear receptores muscarínicos", b: "Inhibir la colinesterasa de forma irreversible", c: "Estimular receptores nicotínicos directamente", d: "Inhibir la MAO"}, correct: "b", exp: "Se unen covalentemente inhibiendo a la acetilcolinesterasa irreversiblemente." },
+    { id: 6, type: "mc", q: "¿Con qué receptores interactúa principalmente la Noradrenalina?", opts: {a: "Muscarínicos M1 y M2", b: "Alfa y beta adrenérgicos", c: "Dopaminérgicos D1", d: "Nicotínicos Nm"}, correct: "b", exp: "Interactúa con receptores adrenérgicos (alfa-1, alfa-2 y beta-1)." },
+    { id: 7, type: "mc", q: "Es una característica INCORRECTA sobre la Adrenalina:", opts: {a: "Se absorbe bien por vía IM y SC", b: "Sus efectos son de larga duración", c: "Se distribuye a corazón, hígado y riñón", d: "Posee acción agonista alfa y beta"}, correct: "b", exp: "Sus efectos son de CORTA duración (3 a 5 minutos) por rápido metabolismo enzimático." },
+    { id: 8, type: "mc", q: "En la molécula de un anestésico local, el grupo lipofílico está directamente asociado a:", opts: {a: "La velocidad de excreción renal", b: "La potencia de la molécula", c: "La unión a canales de sodio", d: "El grado de ionización plasmática"}, correct: "b", exp: "A mayor lipofilicidad, mayor facilidad para penetrar membranas y mayor potencia anestésica." },
+    { id: 9, type: "mc", q: "El grupo hidrofílico de un anestésico local se asocia principalmente a:", opts: {a: "La solubilidad en la membrana lipídica", b: "La interacción con los canales de sodio", c: "El metabolismo hepático", d: "La toxicidad cardíaca"}, correct: "b", exp: "Garantiza la solubilidad acuosa e interactúa internamente con el canal de sodio." },
+    { id: 10, type: "mc", q: "¿Cuál de los siguientes anestésicos locales es de duración intermedia?", opts: {a: "Bupivacaína", b: "Tetracaína", c: "Lidocaína", d: "Procainamida"}, correct: "c", exp: "La Lidocaína es una amida con un perfil de duración intermedia." },
+    { id: 11, type: "mc", q: "Respecto a la Bupivacaína, se clasifica como un anestésico local de duración:", opts: {a: "Ultracorta", b: "Corta", c: "Intermedia", d: "Larga"}, correct: "d", exp: "La Bupivacaína posee alta fijación proteica otorgando un prolongado efecto anestésico." },
+    { id: 12, type: "mc", q: "Los anestésicos locales actúan en la fibra nerviosa impidiendo la:", opts: {a: "Repolarización celular", b: "Despolarización celular", c: "Salida de potasio", d: "Entrada de calcio"}, correct: "b", exp: "Bloquean los canales de Na+ impulsando que no ocurra el flujo entrante necesario para despolarizar." },
+    { id: 13, type: "mc", q: "¿A qué grupo químico pertenece la Benzocaína?", opts: {a: "Amida", b: "Éster", c: "Cetona", d: "Éter"}, correct: "b", exp: "Es un anestésico tópico perteneciente al grupo éster." },
+    { id: 14, type: "mc", q: "Los anestésicos locales tipo éster se hidrolizan rápidamente en el plasma por acción de:", opts: {a: "Citocromo P450", b: "Esterasas plasmáticas", c: "Glucuroniltransferasa", d: "Monoaminooxidasa"}, correct: "b", exp: "Las pseudocolinesterasas plasmáticas realizan su metabolismo hidrolítico." },
+    { id: 15, type: "mc", q: "Comparados con las amidas, los anestésicos locales tipo éster son:", opts: {a: "Más estables en solución", b: "Más inestables en solución", c: "De mayor duración de acción", d: "Metabolizados exclusivamente en riñón"}, correct: "b", exp: "Los enlaces éster son químicamente más lábiles e inestables que las uniones amida." },
+    { id: 16, type: "mc", q: "Es una característica INCORRECTA del anestésico local ideal:", opts: {a: "Baja toxicidad", b: "Periodo de latencia moderado a largo", c: "Compatible con vasoconstrictores", d: "Ausencia de reacciones alergénicas"}, correct: "b", exp: "El anestésico ideal debe tener un periodo de latencia CORTO o rápido onset." },
+    { id: 17, type: "mc", q: "¿Cuál de los siguientes es un efecto del sistema parasimpático?", opts: {a: "Midriasis", b: "Miosis", c: "Broncodilatación", d: "Inhibición de la motilidad gástrica"}, correct: "b", exp: "La estimulación colinérgica produce contracción pupilar (miosis)." },
+    { id: 18, type: "mc", q: "Todos son efectos de la estimulación parasimpática, EXCEPTO:", opts: {a: "Salivación profusa", b: "Contracción del detrusor de la vejiga", c: "Midriasis", d: "Hipersecreción bronquial"}, correct: "c", exp: "El parasimpático produce miosis; la midriasis es un efecto simpático." },
+    { id: 19, type: "mc", q: "Es una ventaja de asociar vasoconstrictor a un anestésico local, EXCEPTO:", opts: {a: "Disminución de la toxicidad sistémica", b: "Aumento de la duración del efecto", c: "Mayor absorción sistémica del anestésico", d: "Disminución de la hemorragia local"}, correct: "c", exp: "El vasoconstrictor RETARDA la absorción sistémica, manteniéndolo más tiempo localmente." },
+    { id: 20, type: "mc", q: "Neurotransmisor principal de la transmisión colinérgica:", opts: {a: "Adrenalina", b: "Noradrenalina", c: "Acetilcolina", d: "Dopamina"}, correct: "c", exp: "La Acetilcolina es el ligando natural de receptores muscarínicos y nicotínicos." },
+    { id: 21, type: "mc", q: "Los receptores colinérgicos se dividen en:", opts: {a: "Alfa 1 y Alfa 2", b: "Muscarínicos y Nicotínicos", c: "Beta 1 y Beta 2", d: "H1 y H2"}, correct: "b", exp: "Son las dos familias principales reconocidas por la acetilcolina." },
+    { id: 22, type: "mc", q: "Enzima encargada de la degradación de la acetilcolina en la hendidura sináptica:", opts: {a: "COMT", b: "MAO", c: "Acetilcolinesterasa", d: "DOPA descarboxilasa"}, correct: "c", exp: "La Acetilcolinesterasa escinde la acetilcolina en acetato y colina." },
+    { id: 23, type: "mc", q: "Principal neurotransmisor liberado por las fibras posganglionares simpáticas:", opts: {a: "Acetilcolina", b: "Noradrenalina", c: "Serotonina", d: "GABA"}, correct: "b", exp: "La noradrenalina es liberada en casi todas las terminaciones posganglionares simpáticas." },
+    { id: 24, type: "mc", q: "Receptores adrenérgicos asociados a la respuesta simpática:", opts: {a: "M1 a M5", b: "Alfa 1, Alfa 2, Beta 1, Beta 2, Beta 3", c: "Nm y Nn", d: "D1 a D5"}, correct: "b", exp: "Corresponden a la clasificación estándar de receptores simpáticos o adrenérgicos." },
+    { id: 25, type: "mc", q: "Enzimas principales involucradas en el metabolismo de las catecolaminas:", opts: {a: "Acetilcolinesterasa y Butirilcolinesterasa", b: "MAO y COMT", c: "Ciclooxigenasa y Lipoxigenasa", d: "Mieloperoxidasa y Lactoperoxidasa"}, correct: "b", exp: "La Monoaminooxidasa (MAO) y la Catecol-O-metiltransferasa (COMT) degradan las catecolaminas." },
+    { id: 26, type: "mc", q: "Dosis pediátrica usual de Amoxicilina para infecciones odontogénicas:", opts: {a: "10-20 mg/kg/día", b: "20-30 mg/kg/día", c: "50 mg/kg/día", d: "100 mg/kg/día"}, correct: "c", exp: "La guía estándar maneja 50 mg/kg/día dividida en tomas de 8 horas." },
+    { id: 27, type: "mc", q: "¿Cada cuántas horas se administra la Amoxicilina en esquema estándar pediátrico?", opts: {a: "Cada 4 horas", b: "Cada 6 horas", c: "Cada 8 horas", d: "Cada 12 horas"}, correct: "c", exp: "Su vida media de eliminación requiere administración cada 8 horas." },
+    { id: 28, type: "mc", q: "En un paciente de 30 kg tratado con Amoxicilina (50 mg/kg/día), ¿cuál es la dosis total diaria?", opts: {a: "1000 mg", b: "1200 mg", c: "1500 mg", d: "1800 mg"}, correct: "c", exp: "Cálculo: 30 kg × 50 mg/kg/día = 1500 mg diarios." },
+    { id: 29, type: "mc", q: "En un paciente de 30 kg, ¿cuántos mg de Amoxicilina corresponden por toma cada 8 horas?", opts: {a: "250 mg", b: "500 mg", c: "750 mg", d: "1000 mg"}, correct: "b", exp: "Cálculo: 1500 mg diarios / 3 tomas = 500 mg por toma." },
+    { id: 30, type: "mc", q: "Para un paciente pediátrico de 25 kg, la dosis total diaria de Amoxicilina calculada a 50 mg/kg/día es:", opts: {a: "1000 mg", b: "1250 mg", c: "1500 mg", d: "2000 mg"}, correct: "b", exp: "Cálculo: 25 kg × 50 mg/kg/día = 1250 mg al día." },
+    { id: 31, type: "mc", q: "Un paciente de 25 kg requiere Amoxicilina en suspensión (250 mg / 5 mL). Si la dosis por toma es 416.6 mg, ¿cuántos mL corresponden aproximadamente?", opts: {a: "5 mL", b: "8 mL", c: "10 mL", d: "12 mL"}, correct: "b", exp: "Regla de 3: (416.6 mg × 5 mL) / 250 mg ≈ 8.3 mL (~8 mL)." },
+    { id: 32, type: "mc", q: "En el examen de la USMP, la dosis usual calculada para Lidocaína y Mepivacaína en odontología es:", opts: {a: "2 mg/kg", b: "4 mg/kg", c: "7 mg/kg", d: "10 mg/kg"}, correct: "b", exp: "El estándar utilizado en esta evaluación toma 4 mg/kg para el cálculo de dosis usual de amidas." },
+    { id: 33, type: "mc", q: "¿Cuántos miligramos de Mepivacaína al 3% contiene un cartucho/carpule de 1.8 mL?", opts: {a: "36 mg", b: "54 mg", c: "72 mg", d: "90 mg"}, correct: "b", exp: "Cálculo: 3% = 30 mg/mL × 1.8 mL = 54 mg por cartucho." },
+    { id: 34, type: "mc", q: "¿Cuántos miligramos de Lidocaína al 2% contiene un cartucho/carpule de 1.8 mL?", opts: {a: "18 mg", b: "36 mg", c: "54 mg", d: "72 mg"}, correct: "b", exp: "Cálculo: 2% = 20 mg/mL × 1.8 mL = 36 mg por cartucho." },
+    { id: 35, type: "mc", q: "Para un paciente de 38 kg, usando Mepivacaína a 4 mg/kg, la Dosis Máxima Total en mg es:", opts: {a: "120 mg", b: "152 mg", c: "180 mg", d: "200 mg"}, correct: "b", exp: "Cálculo: 38 kg × 4 mg/kg = 152 mg totales." },
+    { id: 36, type: "mc", q: "En un paciente de 38 kg que recibe Mepivacaína al 3% (54 mg/cartucho), ¿cuántos cartuchos máximos se pueden administrar matemáticamente?", opts: {a: "2.0 cartuchos", b: "2.8 cartuchos", c: "3.5 cartuchos", d: "4.0 cartuchos"}, correct: "b", exp: "Cálculo: 152 mg máximo / 54 mg por cartucho = 2.81 cartuchos." },
+    { id: 37, type: "mc", q: "Concentración de epinefrina en dilución 1:80,000 en microgramos por mL (mcg/mL):", opts: {a: "10 mcg/mL", b: "12.5 mcg/mL", c: "20 mcg/mL", d: "25 mcg/mL"}, correct: "b", exp: "1 gramo / 80,000 mL = 1,000,000 mcg / 80,000 mL = 12.5 mcg/mL." },
+    { id: 38, type: "mc", q: "Cantidad de epinefrina en un cartucho de 1.8 mL con dilución 1:80,000:", opts: {a: "18 mcg", b: "22.5 mcg", c: "36 mcg", d: "50 mcg"}, correct: "b", exp: "Cálculo: 12.5 mcg/mL × 1.8 mL = 22.5 mcg." },
+    { id: 39, type: "mc", q: "Para 2.5 cartuchos de anestésico con Epinefrina 1:80,000, la cantidad total de epinefrina administrada es:", opts: {a: "45 mcg", b: "56.25 mcg", c: "63.3 mcg", d: "90 mcg"}, correct: "b", exp: "Cálculo: 2.5 cartuchos × 22.5 mcg/cartucho = 56.25 mcg." },
+    { id: 40, type: "mc", q: "Para un paciente de 45 kg, aplicando Lidocaína a 4 mg/kg, la Dosis Máxima Total es:", opts: {a: "150 mg", b: "180 mg", c: "200 mg", d: "225 mg"}, correct: "b", exp: "Cálculo: 45 kg × 4 mg/kg = 180 mg." },
+    { id: 41, type: "mc", q: "En un paciente de 45 kg con Lidocaína 2% (36 mg/cartucho), ¿cuántos cartuchos representan el límite máximo?", opts: {a: "3 cartuchos", b: "4 cartuchos", c: "5 cartuchos", d: "6 cartuchos"}, correct: "c", exp: "Cálculo: 180 mg / 36 mg por cartucho = 5 cartuchos." },
+    { id: 42, type: "mc", q: "Concentración de epinefrina en dilución 1:50,000 en microgramos por mL (mcg/mL):", opts: {a: "12.5 mcg/mL", b: "18 mcg/mL", c: "20 mcg/mL", d: "36 mcg/mL"}, correct: "c", exp: "1,000,000 mcg / 50,000 mL = 20 mcg/mL." },
+    { id: 43, type: "mc", q: "Cantidad de epinefrina contenida en un cartucho de 1.8 mL al 1:50,000:", opts: {a: "18 mcg", b: "22.5 mcg", c: "36 mcg", d: "72 mcg"}, correct: "c", exp: "Cálculo: 20 mcg/mL × 1.8 mL = 36 mcg." },
+    { id: 44, type: "mc", q: "Cantidad total de epinefrina administrada en 5 cartuchos con vasoconstrictor al 1:50,000:", opts: {a: "90 mcg", b: "120 mcg", c: "180 mcg", d: "200 mcg"}, correct: "c", exp: "Cálculo: 5 cartuchos × 36 mcg/cartucho = 180 mcg." },
+    { id: 45, type: "mc", q: "En la práctica clínica real (Malamed/ADA), la dosis máxima recomendada de Lidocaína con vasoconstrictor por kg es:", opts: {a: "2.0 mg/kg", b: "4.4 mg/kg", c: "7.0 mg/kg", d: "10 mg/kg"}, correct: "b", exp: "La dosis según las tablas clínicas de Malamed/ADA es de 4.4 mg/kg (con tope de 300 mg o 500 mg segun norma)." },
+    { id: 46, type: "mc", q: "Dosis máxima absoluta en miligramos para Lidocaína o Mepivacaína en adultos según estándares clínicos clásicos:", opts: {a: "150 mg", b: "300 mg", c: "500 mg", d: "800 mg"}, correct: "b", exp: "El tope absoluto estándar suele marcarse en 300 mg para evitar neuro/cardiotoxicidad." },
+    { id: 47, type: "mc", q: "Dosis máxima por kg para Articaína al 4% según guías clínicas:", opts: {a: "4.4 mg/kg", b: "5.0 mg/kg", c: "7.0 mg/kg", d: "9.0 mg/kg"}, correct: "c", exp: "Por su alta efectividad y rápido metabolismo, su dosis tope es 7.0 mg/kg (máx 500 mg)." },
+    { id: 48, type: "mc", q: "Fórmula para calcular los miligramos de anestésico por cartucho:", opts: {a: "% de anestésico x 10 x 1.8", b: "% de anestésico x 100 x 1.8", c: "Peso x dosis/kg", d: "% de anestésico x 1.8 / 10"}, correct: "a", exp: "Ejemplo: 2% = 2 × 10 × 1.8 = 36 mg." },
+    { id: 49, type: "mc", q: "El bloqueo de canales de sodio por los anestésicos locales prolonga el periodo:", opts: {a: "Latente absoluto de contracción", b: "Refractario", c: "Repolarizante rápido", d: "Metabólico celular"}, correct: "b", exp: "Al no permitir nueva transmisión, extiende el periodo refractario de la membrana axónica." },
+    { id: 50, type: "mc", q: "La broncodilatación severa en una crisis de shock anafiláctico es mediada principalmente por receptores:", opts: {a: "Alfa 1", b: "Alfa 2", c: "Beta 1", d: "Beta 2"}, correct: "d", exp: "Los receptores Beta-2 adrenérgicos producen relajación del músculo liso bronquial." },
+    { id: 51, type: "mc", q: "¿Cuál es la enzima hepática primaria responsable del metabolismo de la Lidocaína?", opts: {a: "CYP3A4 y CYP1A2", b: "Monoaminooxidasa", c: "Pseudocolinesterasa", d: "Glucuroniltransferasa"}, correct: "a", exp: "Los anestésicos tipo amida se metabolizan en el hígado principalmente mediante enzimas microsomal CYP450." },
+    { id: 52, type: "mc", q: "Fármaco indicado para revertir el bloqueo de la placa neuromuscular inducido por curare:", opts: {a: "Atropina", b: "Neostigmina", c: "Pralidoxima", d: "Adrenalina"}, correct: "b", exp: "La Neostigmina es un anticolinesterásico reversible que incrementa los niveles de acetilcolina en la placa motora." },
+    { id: 53, type: "mc", q: "Anestésico local de tipo éster utilizado como agente tópico por su baja solubilidad acuosa:", opts: {a: "Lidocaína", b: "Benzocaína", c: "Bupivacaína", d: "Mepivacaína"}, correct: "b", exp: "La Benzocaína es prácticamente insoluble en agua y de absorción lenta, ideal para mucosa." },
+    { id: 54, type: "mc", q: "El antagonista específico ante una intoxicación por insecticidas organofosforados es:", opts: {a: "Pralidoxima + Atropina", b: "Naloxona", c: "Flumazenil", d: "Neostigmina"}, correct: "a", exp: "La Atropina bloquea los síntomas muscarínicos y la Pralidoxima reactiva la enzima colinesterasa." },
+    { id: 55, type: "mc", q: "Efecto adverso cardiovascular más temido de la Bupivacaína tras inyección intravascular accidental:", opts: {a: "Hipertensión severa", b: "Cardiotoxicidad y arritmias ventriculares", c: "Bradicardia sinusal leve", d: "Vasodilatación perisférica pura"}, correct: "b", exp: "Se une fuertemente a los canales de Na+ cardíacos produciendo arritmias refractarias a tratamiento." },
+    { id: 56, type: "mc", q: "¿Qué estructura lipídica de la fibra nerviosa es atravesada por el anestésico local no ionizado?", opts: {a: "Canal de Calcio", b: "Membrana / Neurilema", c: "Retículo sarcoplásmico", d: "Axoplasma acuoso"}, correct: "b", exp: "La forma no ionizada (liposoluble) atraviesa el neurilema lipidico para ingresar al axón." },
+    { id: 57, type: "mc", q: "Efecto de los receptores Alfa-1 adrenérgicos sobre la vasculatura periférica:", opts: {a: "Vasodilatación", b: "Vasoconstricción", c: "Aumento de permeabilidad", d: "Sin efecto"}, correct: "b", exp: "Los Alfa-1 median la contracción del músculo liso vascular generando vasoconstricción." },
+    { id: 58, type: "mc", q: "¿Qué porcentaje de solución corresponde a 20 mg/mL de anestésico local?", opts: {a: "0.2%", b: "2%", c: "20%", d: "0.02%"}, correct: "b", exp: "Regla básica: 2% equivale a 20 mg/mL." },
+    { id: 59, type: "mc", q: "El pKa de un anestésico local determina principalmente:", opts: {a: "La duración del efecto", b: "El tiempo / periodo de latencia (onset)", c: "La potencia clínica", d: "La toxicidad hepática"}, correct: "b", exp: "Cuanto más cercano es el pKa al pH fisiológico (7.4), mayor es la fracción neutra y más rápido es el inicio de acción." },
+    { id: 60, type: "mc", q: "El uso de Adrenalina está contraindicado o requiere suma cautela en pacientes con:", opts: {a: "Hipotensión ortostática", b: "Hipertiroidismo no controlado y enfermedad cardiovascular severa", c: "Asma bronquial", d: "Gastritis crónica"}, correct: "b", exp: "Puede desencadenar crisis tirotiroidea o arritmias e hipertensión arterial severa." },
+    { id: 61, type: "mc", q: "Fármaco utilizado para tratar la xerostomía gracias a su acción agonista muscarínica:", opts: {a: "Atropina", b: "Pilocarpina", c: "Scopolamina", d: "Propranolol"}, correct: "b", exp: "La Pilocarpina estimula las glándulas salivales al actuar sobre receptores M3." },
+    { id: 62, type: "mc", q: "El metabolito de la Prilocaína implicado en la inducción de Metahemoglobinemia es:", opts: {a: "Para-aminobenzoato (PABA)", b: "Orto-toluidina", c: "Xilidida", d: "Acido acético"}, correct: "b", exp: "La orto-toluidina oxida el hierro de la hemoglobina a su forma férrica (Fe3+)." },
+    { id: 63, type: "mc", q: "Receptor colinérgico ubicado en la placa neuromuscular esquelética:", opts: {a: "M1", b: "M2", c: "Nm", d: "Nn"}, correct: "c", exp: "El subtipo Nm (nicotínico muscular) media la contracción del músculo esquelético." },
+    { id: 64, type: "mc", q: "Receptor colinérgico ubicado en los ganglios autónomos:", opts: {a: "M3", b: "Nn", c: "Beta-1", d: "Alfa-2"}, correct: "b", exp: "El subtipo Nn (nicotínico neuronal) está presente en los ganglios simpáticos y parasimpáticos." },
+    { id: 65, type: "mc", q: "¿Cuál es la función del metabolito PABA derivado de los ésteres?", opts: {a: "Analgesia suplementaria", b: "Potente vasoconstricción", c: "Inducción de reaciones alérgicas de hipersensibilidad", d: "Aumento de la biodegradación hepática"}, correct: "c", exp: "El ácido para-aminobenzoico (PABA) es el responsable de la alta tasa de alergias asociadas a anestésicos éster." },
+    { id: 66, type: "mc", q: "Anestésico local que posee una cadena lateral con un anillo de Tiofeno y un enlace éster adicional:", opts: {a: "Lidocaína", b: "Articaína", c: "Mepivacaína", d: "Prilocaína"}, correct: "b", exp: "La Articaína combina una estructura de tiofeno con metabolismo plasmático rápido por su grupo éster adicional." },
+    { id: 67, type: "mc", q: "En presencia de tejido inflamado o infectado (pH ácido), la eficacia del anestésico local:", opts: {a: "Aumenta significativamente", b: "Permanece idéntica", c: "Disminuye porque predomina la forma ionizada que no penetra la membrana", d: "Aumenta la velocidad de latencia"}, correct: "c", exp: "El pH bajo desplaza el equilibrio a la forma ionizada (C+), impidiendo que atraviese el neurilema." },
+    { id: 68, type: "mc", q: "El efecto inotrópico y cronotrópico positivo de la Adrenalina sobre el corazón se debe a receptores:", opts: {a: "Alfa-1", b: "Beta-1", c: "Beta-2", d: "Muscarínicos M2"}, correct: "b", exp: "Los receptores Beta-1 dominan el miocardio y nodo sinusal, aumentando frecuencia y fuerza de contracción." },
+    { id: 69, type: "mc", q: "¿Qué sustancia contrarresta la acción del vasoconstrictor revirtiendo la anestesia local más rápido?", opts: {a: "Mesilato de Prentolamina", b: "Neostigmina", c: "Atropina", d: "Naloxona"}, correct: "a", exp: "El mesilato de fentolamina es un vasodilatador alfa-bloqueador que acelera el retorno a la sensibilidad normal." },
+    { id: 70, type: "mc", q: "Sustancia que se adiciona a las carpules anestésicas como antioxidante para el vasoconstrictor:", opts: {a: "Metilparabeno", b: "Bisulfito de Sodio", c: "Cloruro de Sodio", d: "Hidróxido de Sodio"}, correct: "b", exp: "El bisulfito de sodio previene la oxidación de la epinefrina, prolongando la vida útil del producto." },
+    { id: 71, type: "mc", q: "¿Cuál es el vaso de elección para evitar inyección intravascular accidental en anestesia odontológica?", opts: {a: "Aspiración previa en 2 planos antes de inyectar", b: "Inyección rápida", c: "Uso de aguja corta únicamente", d: "Sin aspiración previa"}, correct: "a", exp: "La aspiración negativa previa es la maniobra crítica para evitar la inyección sistémica directa." },
+    { id: 72, type: "mc", q: "La intoxicación moderada/severa por anestésicos locales en SNC inicia clínicamente con:", opts: {a: "Depresión súbita y coma", b: "Excitación, agitación, adormecimiento peribucal y convulsiones", c: "Hipertensión maligna solitaria", d: "Parálisis flácida periférica"}, correct: "b", exp: "Inicia con estimulación/excitación inicial del SNC debido a la inhibición de vías inhibitorias corticales." },
+    { id: 73, type: "mc", q: "Un paciente de 60 kg requiere Lidocaína al 2% (36 mg/cartucho). A 4.4 mg/kg, ¿cuántos mg máximos tolera?", opts: {a: "180 mg", b: "264 mg", c: "300 mg", d: "400 mg"}, correct: "b", exp: "Cálculo: 60 kg × 4.4 mg/kg = 264 mg máximos." },
+    { id: 74, type: "mc", q: "¿Cuántos cartuchos representan 264 mg de Lidocaína al 2% (36 mg/cartucho)?", opts: {a: "5 cartuchos", b: "7.3 cartuchos", c: "10 cartuchos", d: "4.5 cartuchos"}, correct: "b", exp: "Cálculo: 264 mg / 36 mg ≈ 7.3 cartuchos." },
+    { id: 75, type: "mc", q: "Antídoto de primera línea en reanimación por toxicidad sistémica grave de anestésicos locales (LAST):", opts: {a: "Emulsión Lipídica Intravenosa (Intralipid)", b: "Atropina", c: "Bicarbonato de sodio", d: "Glucosa hipertónica"}, correct: "a", exp: "La emulsión lipídica al 20% 'atrapa' la molécula lipofílica reduciendo su fracción libre en plasma." },
+    { id: 76, type: "mc", q: "Enzima que cataliza la síntesis de Acetilcolina a partir de Acetil-CoA y Colina:", opts: {a: "Colina Acetiltransferasa (CHAT)", b: "Acetilcolinesterasa", c: "DOPA Descarboxilasa", d: "MAO"}, correct: "a", exp: "La Colina Acetiltransferasa es la responsable de sintetizar la acetilcolina intraneuronalmente." },
+    { id: 77, type: "mc", q: "Efecto de los anestésicos locales sobre los canales de Sodio estimulados:", opts: {a: "Aumento de la conductancia", b: "Bloqueo del canal desde la cara interna en estado abierto/inactivado", c: "Cierre reversible del canal en estado de reposo externo", d: "Aumento del flujo de calcio"}, correct: "b", exp: "Se fijan preferentemente en la cara interna del poro cuando el canal está abierto o inactivado." },
+    { id: 78, type: "mc", q: "La Mepivacaína al 3% se prefiere cuando está contraindicado el uso de:", opts: {a: "Agua destilada", b: "Vasoconstrictores (Epinefrina)", c: "Anestésicos amidas", d: "Sodio"}, correct: "b", exp: "Por poseer baja propiedad vasodilatadora propia, provee analgesia efectiva sin necesidad de adrenalina." },
+    { id: 79, type: "mc", q: "¿Qué fibras nerviosas se bloquean PRIMERO por acción de los anestésicos locales?", opts: {a: "Fibras A-alfa (motoras y propiocepción)", b: "Fibras C y A-delta (dolor y temperatura)", c: "Fibras A-beta (tacto y presión)", d: "Fibras motoras gruesas"}, correct: "b", exp: "Las fibras amielínicas o finamente mielinizadas de menor diámetro (dolor/temperatura) se bloquean antes que las motoras." },
+    { id: 80, type: "mc", q: "La estimulación Beta-2 adrenérgica a nivel uterino produce:", opts: {a: "Contracción miometrial", b: "Relajación miometrial (Uteroinhibición)", c: "Hemorragia severa", d: "Sin respuesta"}, correct: "b", exp: "Los agonistas B2 (ej. Isoxsuprina) relajan el músculo liso miometrial." },
+    { id: 81, type: "mc", q: "El fenómeno de rebotamiento o vasodilatación secundaria tras la aplicación de Adrenalina se debe a:", opts: {a: "Efecto persistente Alfa-1", b: "Inactivación del receptor M1", c: "Efecto Beta-2 persistente a dosis bajas residuales", d: "Aumento repentino de Acetilcolina"}, correct: "c", exp: "Al caer la concentración de adrenalina, el efecto vasodilatador Beta-2 predomina sobre el Alfa-1." },
+    { id: 82, type: "mc", q: "Nombre del compuesto precursor inmediato en la síntesis de Noradrenalina:", opts: {a: "Tirosina", b: "Dopamina", c: "L-DOPA", d: "Serotonina"}, correct: "b", exp: "La Dopamina se hidroxila por la Dopamina-beta-hidroxilasa para convertirse en Noradrenalina." },
+    { id: 83, type: "mc", q: "Antagonista competitivo no selectivo de los receptores Beta adrenérgicos:", opts: {a: "Atenolol", b: "Propranolol", c: "Metoprolol", d: "Prazosina"}, correct: "b", exp: "El Propranolol bloquea con igual afinidad receptores Beta-1 y Beta-2." },
+    { id: 84, type: "mc", q: "Antagonista selectivo de los receptores Alfa-1 adrenérgicos usado en hipertensión y hiperplasia prostática:", opts: {a: "Prazosina", b: "Propranolol", c: "Atropina", d: "Yohimbina"}, correct: "a", exp: "La Prazosina bloquea selectivamente Alfa-1 causando vasodilatación y relajación prostática." },
+    { id: 85, type: "mc", q: "Efecto del sistema Parasimpático sobre la frecuencia cardíaca (cronotropismo):", opts: {a: "Aumento (Aceleración)", b: "Disminución (Bradicardia)", c: "Arritmia ventricular", d: "Sin cambio"}, correct: "b", exp: "El vago libera Acetilcolina en receptores M2 del nodo sinusal reduciendo la frecuencia cardíaca." },
+    { id: 86, type: "mc", q: "Agente anticolinérgico derivado de la belladona con acción sedante sobre SNC usado para el mareo:", opts: {a: "Atropina", b: "Escopolamina (Hioscina)", c: "Pilocarpina", d: "Neostigmina"}, correct: "b", exp: "La escopolamina atraviesa BHE produciendo sedación y prevención de cinetosis." },
+    { id: 87, type: "mc", q: "¿Cuál es el tiempo de latencia promedio de la Lidocaína al 2% con vasoconstrictor?", opts: {a: "10 a 15 minutos", b: "2 a 3 minutos", c: "30 segundos", d: "20 minutos"}, correct: "b", exp: "Posee un onset rápido de 2 a 4 minutos." },
+    { id: 88, type: "mc", q: "Anestésico local del grupo amida de mayor potencia y toxicidad:", opts: {a: "Procaina", b: "Bupivacaína", c: "Lidocaína", d: "Prilocaína"}, correct: "b", exp: "Su elevada liposolubilidad le otorga alta potencia y riesgo cardiotóxico elevado." },
+    { id: 89, type: "mc", q: "Complicación local en mucosa producida por inyección excesiva con alta concentración de vasoconstrictor:", opts: {a: "Infección bacteriana", b: "Isquemia y necrosis tisular", c: "Caries galopante", d: "Papiloma"}, correct: "b", exp: "La vasoconstricción prolongada e intensa priva de oxígeno al tejido provocando necrosis." },
+    { id: 90, type: "mc", q: "Tratamiento de elección para una reacción anafiláctica severa por fármacos:", opts: {a: "Hidrocortisona sola", b: "Adrenalina intramuscular (0.3 - 0.5 mg)", c: "Clorfenamina oral", d: "Atropina IV"}, correct: "b", exp: "La Adrenalina IM revierte de inmediato la broncoconstricción y el colapso vascular." },
+    { id: 91, type: "mc", q: "La Clorfenamina y Dexametasona en shock anafiláctico actúan como:", opts: {a: "Sustitutos de primera línea", b: "Tratamiento coadyuvante o secundario", c: "Vasoconstrictores puros", d: "Inactivadores de histamina"}, correct: "b", exp: "Son fármacos de segunda línea para prevenir respuestas tardías." },
+    { id: 92, type: "mc", q: "¿Qué porcentaje representa una dilución de 1:100,000 de Epinefrina?", opts: {a: "0.001%", b: "0.01%", c: "0.1%", d: "0.0001%"}, correct: "a", exp: "1 g / 100,000 mL = 0.001g / 100 mL = 0.001%." },
+    { id: 93, type: "mc", q: "Principal vía de eliminación de los metabolitos inactivos de los anestésicos locales:", opts: {a: "Digestiva (Heces)", b: "Renal (Orina)", c: "Pulmonar (Exhalación)", d: "Sudorípara"}, correct: "b", exp: "Los metabolitos hidrosolubles formados en hígado o plasma se excretan por el riñón." },
+    { id: 94, type: "mc", q: "Fármaco simpaticomimético directo que estimula prioritariamente receptores Dopaminérgicos y Beta-1:", opts: {a: "Dopamina", b: "Salbutamol", c: "Phenylefrina", d: "Clonidina"}, correct: "a", exp: "A dosis bajas y medias la Dopamina estimula receptores D1 renales y B1 cardíacos." },
+    { id: 95, type: "mc", q: "El fenómeno de 'atrapamiento de iones' de anestésicos locales ocurre por:", opts: {a: "Gradiente de pH entre placenta/feto o interior celular ácido", b: "Exceso de grasa periférica", c: "Unión a glóbulos rojos", d: "Eliminación biliar"}, correct: "a", exp: "En medios más ácidos el fármaco se ioniza y no puede salir a través de las membranas." },
+    { id: 96, type: "mc", q: "Efecto adverso típico de los bloqueadores adrenérgicos Alfa-1 como la Prazosina:", opts: {a: "Hipertensión severa", b: "Hipotensión ortostática o 'efecto primera dosis'", c: "Retención urinaria", d: "Miosis fija"}, correct: "b", exp: "La pérdida brusca del tono simpático vascular genera mareo e hipotensión al ponerse de pie." },
+    { id: 97, type: "mc", q: "Agonista Alfa-2 central que disminuye el flujo simpático e hipertensión:", opts: {a: "Clonidina", b: "Isoproterenol", c: "Adrenalina", d: "Atropina"}, correct: "a", exp: "La Clonidina estimula presinápticamente Alfa-2 inhibiendo la liberación de Noradrenalina." },
+    { id: 98, type: "mc", q: "Agonista selectivo Beta-2 utilizado por vía inhalatoria en el asma bronquial:", opts: {a: "Propranolol", b: "Salbutamol (Albuterol)", c: "Atenolol", d: "Adrenalina"}, correct: "b", exp: "El Salbutamol genera broncodilatación rápida con bajo efecto cardíaco relativo." },
+    { id: 99, type: "mc", q: "La anestesia por infiltración local bloquea la conducción en:", opts: {a: "Grandes troncos nerviosos terminales", b: "Terminaciones nerviosas sensitivas del área inyectada", c: "Médula espinal", d: "Corteza cerebral"}, correct: "b", exp: "Infiltra directamente los tejidos circundantes a las fibras finas o receptores." },
+    { id: 100, type: "mc", q: "La anestesia de bloqueo regional / troncular anestesia:", opts: {a: "Un área circunscrita pequeña", b: "Un tronco nervioso principal y todo su territorio de inervación distal", c: "El cuerpo completo", d: "Solo la piel superficial"}, correct: "b", exp: "Deposita el anestésico cerca a un tronco nervioso (ej. dentario inferior) anulando la conducción distal." },
+
+    // --- PARTE II: Verdadero / Falso (101 - 200) ---
+    { id: 101, type: "tf", q: "(   ) La acetilcolina es ineficaz cuando se administra por vía oral porque se destruye por las colinesterasas.", correct: "V", exp: "Verdadero. La degradación enzimática la inactiva antes de surtir efecto." },
+    { id: 102, type: "tf", q: "(   ) La atropina produce midriasis y fotofobia en el paciente.", correct: "V", exp: "Verdadero. Al bloquear receptores muscarínicos pupilares genera dilatación (midriasis) y sensibilidad a la luz." },
+    { id: 103, type: "tf", q: "(   ) La sequedad de boca y la miosis son efectos adversos típicos de la atropina.", correct: "F", exp: "Falso. Produce xerostomía (sequedad de boca), pero genera MIDRIASIS, no miosis." },
+    { id: 104, type: "tf", q: "(   ) La adrenalina es un fármaco indicado de emergencia para el paro cardiorrespiratorio.", correct: "V", exp: "Verdadero. Es el vasoactivo de primera línea en reanimación cardiopulmonar." },
+    { id: 105, type: "tf", q: "(   ) Los insecticidas organofosforados inhiben a la enzima acetilcolinesterasa de forma irreversible.", correct: "V", exp: "Verdadero. La unión fosforilante es covalente y requiere síntesis de nueva enzima." },
+    { id: 106, type: "tf", q: "(   ) La noradrenalina interactúa predominantemente con receptores muscarínicos.", correct: "F", exp: "Falso. Interactúa con receptores adrenérgicos (alfa y beta), no colinérgicos muscarínicos." },
+    { id: 107, type: "tf", q: "(   ) La Adrenalina posee efectos de corta duración (3 a 5 minutos).", correct: "V", exp: "Verdadero. Su vida media hepática y plasmática es muy breve debido al metabolismo por MAO/COMT." },
+    { id: 108, type: "tf", q: "(   ) La Adrenalina se distribuye adecuadamente a tejidos como corazón, hígado y riñón.", correct: "V", exp: "Verdadero. Tiene una amplia distribución tisular sistémica tras su administración." },
+    { id: 109, type: "tf", q: "(   ) El grupo hidrofílico del anestésico local se asocia a la interacción con los canales de sodio.", correct: "V", exp: "Verdadero. Facilita la ionización y la fijación al canal desde el medio interno." },
+    { id: 110, type: "tf", q: "(   ) El grupo lipofílico del anestésico local determina la potencia de la molécula.", correct: "V", exp: "Verdadero. La liposolubilidad define la difusión neuronal y la potencia anestésica." },
+    { id: 111, type: "tf", q: "(   ) La lidocaína es un anestésico local clasificado dentro del grupo de duración intermedia.", correct: "V", exp: "Verdadero. Es la amida prototipo de duración intermedia." },
+    { id: 112, type: "tf", q: "(   ) La bupivacaína es un anestésico local de duración corta.", correct: "F", exp: "Falso. La Bupivacaína es de duración LARGA." },
+    { id: 113, type: "tf", q: "(   ) Los anestésicos locales impiden la repolarización celular y acortan el periodo refractario.", correct: "F", exp: "Falso. Impiden la DESPOLARIZACIÓN y prolongan el periodo refractario." },
+    { id: 114, type: "tf", q: "(   ) Tanto la lidocaína como la benzocaína pertenecen al grupo químico de las amidas.", correct: "F", exp: "Falso. La Lidocaína es amida, pero la Benzocaína es un ÉSTER." },
+    { id: 115, type: "tf", q: "(   ) Los anestésicos locales tipo éster son hidrolizados rápidamente por las esterasas plasmáticas.", correct: "V", exp: "Verdadero. La pseudocolinesterasa plasmática los degrada rápidamente." },
+    { id: 116, type: "tf", q: "(   ) Los anestésicos locales tipo amida son más inestables en solución que los tipo éster.", correct: "F", exp: "Falso. Las amidas son MÁS ESTABLES y resistentes al calor/autoclave que los ésteres." },
+    { id: 117, type: "tf", q: "(   ) El anestésico local ideal debe poseer un periodo de latencia moderado a largo.", correct: "F", exp: "Falso. Debe tener un periodo de latencia CORTO (rápido inicio de acción)." },
+    { id: 118, type: "tf", q: "(   ) La baja toxicidad sistémica es una característica indispensable del anestésico local ideal.", correct: "V", exp: "Verdadero. Debe poseer amplio margen de seguridad biológica." },
+    { id: 119, type: "tf", q: "(   ) El anestésico local ideal debe ser totalmente compatible con la adición de vasoconstructores.", correct: "V", exp: "Verdadero. Facilita extender su acción sin alterar la molécula." },
+    { id: 120, type: "tf", q: "(   ) La estimulación del sistema parasimpático provoca midriasis.", correct: "F", exp: "Falso. Produce MIOSIS (contracción pupilar)." },
+    { id: 121, type: "tf", q: "(   ) La hipersecreción bronquial y la salivación profusa son respuestas al estímulo parasimpático.", correct: "V", exp: "Verdadero. Las funciones parasimpáticas aumentan las secreciones exocrinas." },
+    { id: 122, type: "tf", q: "(   ) El parasimpático estimula la función motora gástrica y la contracción del músculo detrusor de la vejiga.", correct: "V", exp: "Verdadero. Favorece la digestión y la evacuación urinaria." },
+    { id: 123, type: "tf", q: "(   ) La adición de un vasoconstrictor a la solución anestésica incrementa la absorción sistémica del anestésico.", correct: "F", exp: "Falso. REDUCE y retrasa la absorción sistémica." },
+    { id: 124, type: "tf", q: "(   ) La incorporación de vasoconstrictor reduce el riesgo de toxicidad sistémica del anestésico local.", correct: "V", exp: "Verdadero. Al ralentizar el paso al torrente sanguíneo, el hígado metaboliza la droga gradualmente." },
+    { id: 125, type: "tf", q: "(   ) Los vasoconstructores prolongan la duración del efecto anestésico y disminuyen el sangrado local.", correct: "V", exp: "Verdadero. Es su principal indicación clínica combinada." },
+    { id: 126, type: "tf", q: "(   ) La acetilcolina es el neurotransmisor principal de la transmisión colinérgica.", correct: "V", exp: "Verdadero. Es la molécula mediadora prototipo de esta vía." },
+    { id: 127, type: "tf", q: "(   ) Los receptores colinérgicos abarcan los subtipos muscarínicos (M1-M5) y nicotínicos (Nm, Nn).", correct: "V", exp: "Verdadero. Corresponde a la división farmacológica oficial." },
+    { id: 128, type: "tf", q: "(   ) La acetilcolinesterasa es la enzima responsable del metabolismo de la acetilcolina.", correct: "V", exp: "Verdadero. La degrada hidrolíticamente en la sinapsis." },
+    { id: 129, type: "tf", q: "(   ) La noradrenalina y la adrenalina son los neurotransmisores de la transmisión adrenérgica.", correct: "V", exp: "Verdadero. Son las catecolaminas naturales del sistema simpático." },
+    { id: 130, type: "tf", q: "(   ) Los receptores adrenérgicos se clasifican en Alfa (1, 2) y Beta (1, 2, 3).", correct: "V", exp: "Verdadero. Es la clasificación estándar adrenérgica." },
+    { id: 131, type: "tf", q: "(   ) Las enzimas MAO (monoaminooxidasa) y COMT (catecol-O-metiltransferasa) metabolizan las catecolaminas.", correct: "V", exp: "Verdadero. Son responsables de su degradación enzimática primaria." },
+    { id: 132, type: "tf", q: "(   ) La dosis pediátrica de Amoxicilina para infecciones odontogénicas es de 50 mg/kg/día.", correct: "V", exp: "Verdadero. Es la dosificación pediátrica recomendada." },
+    { id: 133, type: "tf", q: "(   ) El esquema terapéutico usual de Amoxicilina en odontopediatría se administra cada 8 horas durante 5 a 7 días.", correct: "V", exp: "Verdadero. Es el intervalo e indicación posológica estándar." },
+    { id: 134, type: "tf", q: "(   ) Un niño de 30 kg requiere un total diario de 1500 mg de Amoxicilina.", correct: "V", exp: "Verdadero. Cálculo: 30 kg × 50 mg/kg = 1500 mg." },
+    { id: 135, type: "tf", q: "(   ) Para un niño de 30 kg, la dosis por toma de Amoxicilina cada 8 horas es de 500 mg.", correct: "V", exp: "Verdadero. Cálculo: 1500 mg / 3 tomas = 500 mg." },
+    { id: 136, type: "tf", q: "(   ) Un paciente pediátrico de 25 kg requiere 1250 mg diarios de Amoxicilina.", correct: "V", exp: "Verdadero. Cálculo: 25 kg × 50 mg/kg = 1250 mg." },
+    { id: 137, type: "tf", q: "(   ) La dosis por toma para un niño de 25 kg tratándose con Amoxicilina es de aproximadamente 400 a 416.6 mg cada 8 horas.", correct: "V", exp: "Verdadero. Cálculo: 1250 mg / 3 tomas = 416.6 mg." },
+    { id: 138, type: "tf", q: "(   ) La suspensión de Amoxicilina al 250 mg / 5 mL aporta 50 mg de principio activo por cada mL.", correct: "V", exp: "Verdadero. Cálculo: 250 mg / 5 mL = 50 mg/mL." },
+    { id: 139, type: "tf", q: "(   ) Para administrar 400 mg de Amoxicilina en suspensión al 250 mg/5 mL se requieren 8 mL del producto.", correct: "V", exp: "Verdadero. Cálculo: 8 mL × 50 mg/mL = 400 mg." },
+    { id: 140, type: "tf", q: "(   ) En los exámenes de la USMP, la constante usada para calcular la dosis máxima de Lidocaína y Mepivacaína es 4 mg/kg.", correct: "V", exp: "Verdadero. Es el estándar de cálculo aplicado en dicha cátedra." },
+    { id: 141, type: "tf", q: "(   ) Para un paciente de 38 kg, la Dosis Máxima Total calculada a 4 mg/kg es de 152 mg.", correct: "V", exp: "Verdadero. Cálculo: 38 kg × 4 mg/kg = 152 mg." },
+    { id: 142, type: "tf", q: "(   ) Un carpule de Mepivacaína al 3% de 1.8 mL contiene un total de 54 mg de sustancia anestésica.", correct: "V", exp: "Verdadero. Cálculo: 30 mg/mL × 1.8 mL = 54 mg." },
+    { id: 143, type: "tf", q: "(   ) Para un paciente de 38 kg, el número máximo matemático de cartuchos de Mepivacaína al 3% es de 2.8.", correct: "V", exp: "Verdadero. Cálculo: 152 mg / 54 mg = 2.81 cartuchos." },
+    { id: 144, type: "tf", q: "(   ) Un carpule de Lidocaína al 2% de 1.8 mL contiene 36 mg de anestésico puro.", correct: "V", exp: "Verdadero. Cálculo: 20 mg/mL × 1.8 mL = 36 mg." },
+    { id: 145, type: "tf", q: "(   ) En un paciente de 45 kg, la Dosis Máxima Total de Lidocaína a 4 mg/kg es de 180 mg.", correct: "V", exp: "Verdadero. Cálculo: 45 kg × 4 mg/kg = 180 mg." },
+    { id: 146, type: "tf", q: "(   ) Un paciente de 45 kg puede recibir un límite máximo de 5 cartuchos de Lidocaína al 2%.", correct: "V", exp: "Verdadero. Cálculo: 180 mg / 36 mg = 5 cartuchos." },
+    { id: 147, type: "tf", q: "(   ) La concentración de epinefrina al 1:100,000 equivale a 18 microgramos (mcg) por carpule de 1.8 mL.", correct: "V", exp: "Verdadero. Cálculo: 10 mcg/mL × 1.8 mL = 18 mcg." },
+    { id: 148, type: "tf", q: "(   ) La concentración de epinefrina al 1:80,000 equivale a 22.5 microgramos (mcg) por carpule de 1.8 mL.", correct: "V", exp: "Verdadero. Cálculo: 12.5 mcg/mL × 1.8 mL = 22.5 mcg." },
+    { id: 149, type: "tf", q: "(   ) La concentración de epinefrina al 1:50,000 equivale a 36 microgramos (mcg) por carpule de 1.8 mL.", correct: "V", exp: "Verdadero. Cálculo: 20 mcg/mL × 1.8 mL = 36 mcg." },
+    { id: 150, type: "tf", q: "(   ) Sin vasoconstrictor, la dosis recomendada de lidocaína en la práctica clínica real se incrementa a 10 mg/kg.", correct: "F", exp: "Falso. Sin vasoconstrictor la dosis se REDUCE (máximo ~4.4 mg/kg con tope de 300 mg) por rápida absorción sistémica." },
+    { id: 151, type: "tf", q: "(   ) La Articaína posee un anillo tiofeno en lugar de un anillo bencénico.", correct: "V", exp: "Verdadero. Esta modificación estructural incrementa su liposolubilidad." },
+    { id: 152, type: "tf", q: "(   ) El metabolismo de las amidas ocurre por la pseudocolinesterasa plasmática.", correct: "F", exp: "Falso. Las amidas se metabolizan en el HÍGADO (CYP450); los ésteres por pseudocolinesterasa." },
+    { id: 153, type: "tf", q: "(   ) La Prilocaína en dosis elevadas puede producir metainfección / metahemoglobinemia.", correct: "V", exp: "Verdadero. Su metabolito orto-toluidina oxida la hemoglobina a metahemoglobina." },
+    { id: 154, type: "tf", q: "(   ) La Bupivacaína es el anestésico de elección en procedimientos odontológicos pediátricos breves.", correct: "F", exp: "Falso. Está contraindicada en niños pequeños por el riesgo de automutilación por anestesia blanda prolongada y cardiotoxicidad." },
+    { id: 155, type: "tf", q: "(   ) Los fármacos simpaticomiméticos imitan las respuestas causadas por la estimulación del sistema parasimpático.", correct: "F", exp: "Falso. Imitan las respuestas del sistema SIMPÁTICO." },
+    { id: 156, type: "tf", q: "(   ) La atropina es un agonista competitivo del receptor colinérgico muscarínico.", correct: "F", exp: "Falso. Es un ANTAGONISTA competitivo de los receptores muscarínicos." },
+    { id: 157, type: "tf", q: "(   ) El propranolol bloquea de manera selectiva únicamente a los receptores Beta-1 adrenérgicos.", correct: "F", exp: "Falso. Es NO SELECTIVO (bloquea Beta-1 y Beta-2)." },
+    { id: 158, type: "tf", q: "(   ) El Atenolol es un bloqueador beta-1 cardio selectivo.", correct: "V", exp: "Verdadero. Bloquea preferentemente receptores Beta-1 cardíacos." },
+    { id: 159, type: "tf", q: "(   ) Los anestésicos locales actúan en la superficie externa del canal de sodio impidiendo el paso de K+.", correct: "F", exp: "Falso. Actúan en el interior del canal bloqueando la entrada de Na+." },
+    { id: 160, type: "tf", q: "(   ) La presencia de pus e inflamación tisular incrementa la efectividad de la lidocaína local.", correct: "F", exp: "Falso. El pH ácido ioniza el anestésico impidiendo su penetración a la fibra nerviosa." },
+    { id: 161, type: "tf", q: "(   ) El bisulfito de sodio previene la descomposición y oxidación de los vasoconstrictores en el cartucho.", correct: "V", exp: "Verdadero. Funciona como un antioxidante conservador." },
+    { id: 162, type: "tf", q: "(   ) La Adrenalina al 1:100,000 contiene 0.01 mg de epinefrina por mL.", correct: "V", exp: "Verdadero. 1 g / 100,000 mL = 1 mg / 100 mL = 0.01 mg/mL." },
+    { id: 163, type: "tf", q: "(   ) La inyección intravascular accidental de anestésico es la causa más común de toxicidad sistémica grave.", correct: "V", exp: "Verdadero. Eleva bruscamente los niveles plasmáticos en corazón y cerebro." },
+    { id: 164, type: "tf", q: "(   ) La aspiración previa antes de depositar el anestésico reduce el riesgo de inyección intravascular.", correct: "V", exp: "Verdadero. Es la prueba estándar para confirmar si la aguja está dentro de un vaso." },
+    { id: 165, type: "tf", q: "(   ) Las fibras mielínicas finas de dolor (A-delta) y amielínicas (C) son las más sensibles a anestésicos locales.", correct: "V", exp: "Verdadero. Se bloquean antes que las fibras motoras de gran diámetro." },
+    { id: 166, type: "tf", q: "(   ) La intoxicación grave por anestésicos locales puede desencadenar convulsiones y paro respiratorio.", correct: "V", exp: "Verdadero. Es el cuadro de neurotoxicidad por sobredosis o inyección vascular." },
+    { id: 167, type: "tf", q: "(   ) El tratamiento moderno de rescate ante toxicidad sistémica por anestésicos locales (LAST) incluye emulsión lipídica al 20%.", correct: "V", exp: "Verdadero. Intralipid actúa neutralizando el anestésico libre en sangre." },
+    { id: 168, type: "tf", q: "(   ) Los fármacos parasimpaticomiméticos reducen la motilidad gastrointestinal.", correct: "F", exp: "Falso. AUMENTAN el peristaltismo y la motilidad digestiva." },
+    { id: 169, type: "tf", q: "(   ) La pilocarpina se utiliza en el tratamiento del glaucoma debido a que disminuye la presión intraocular.", correct: "V", exp: "Verdadero. Induce miosis y favorece el drenaje del humor acuoso." },
+    { id: 170, type: "tf", q: "(   ) Los organofosforados causan un síndrome colinérgico caracterizado por salivación, lagrimeo, micción y broncorrea.", correct: "V", exp: "Verdadero. Es la clínica típica por hiperestimulación muscarínica." },
+    { id: 171, type: "tf", q: "(   ) La Neostigmina es un anticolinesterásico irreversible utilizado en gases de guerra.", correct: "F", exp: "Falso. La Neostigmina es REVERSIBLE y de uso médico (ej. Miastenia Gravis)." },
+    { id: 172, type: "tf", q: "(   ) La Succinilcolina es un bloqueador neuromuscular despolarizante de acción corta.", correct: "V", exp: "Verdadero. Induce fasciculaciones seguidas de parálisis flácida rápida." },
+    { id: 173, type: "tf", q: "(   ) La noradrenalina causa marcada vasoconstricción periférica por su alta afinidad sobre receptores Alfa-1.", correct: "V", exp: "Verdadero. Eleva fuertemente la resistencia vascular sistémica." },
+    { id: 174, type: "tf", q: "(   ) La estimulación de receptores Beta-2 adrenérgicos provoca vasoconstricción coronaria y broncoconstricción.", correct: "F", exp: "Falso. Provoca VASODILATACIÓN y BRONCODILATACIÓN." },
+    { id: 175, type: "tf", q: "(   ) Los anestésicos locales cruzan la barrera hematoencefálica y la placenta debido a su naturaleza lipofílica.", correct: "V", exp: "Verdadero. Difunden a través de membranas lipídicas biológicas." },
+    { id: 176, type: "tf", q: "(   ) El metabolito PABA derivado de la procaína es el principal responsable de alergias a anestésicos tipo éster.", correct: "V", exp: "Verdadero. El ácido para-aminobenzoico es altamente inmunogénico." },
+    { id: 177, type: "tf", q: "(   ) La Lidocaína al 2% posee una concentración de 20 mg por mililitro de solución.", correct: "V", exp: "Verdadero. 2% = 2 g / 100 mL = 20 mg/mL." },
+    { id: 178, type: "tf", q: "(   ) La Mepivacaína al 3% sin vasoconstrictor contiene 54 mg de fármaco en un cartucho de 1.8 mL.", correct: "V", exp: "Verdadero. 30 mg/mL × 1.8 mL = 54 mg." },
+    { id: 179, type: "tf", q: "(   ) Un paciente adulto hipertenso no controlado puede recibir dosis ilimitadas de Epinefrina en la consulta.", correct: "F", exp: "Falso. La Epinefrina debe restringirse severamente (máx 0.04 mg = 2 cartuchos al 1:100,000) o evitarse." },
+    { id: 180, type: "tf", q: "(   ) El pKa de un anestésico determina el grado de ionización a un pH tisular específico.", correct: "V", exp: "Verdadero. Rige la proporción de la forma no ionizada vs. ionizada según la ecuación de Henderson-Hasselbalch." },
+    { id: 181, type: "tf", q: "(   ) A menor pKa de un anestésico local, más rápida es su velocidad de inicio de acción (latencia).", correct: "V", exp: "Verdadero. A pH 7.4 habrá más moléculas neutras capaces de difundir." },
+    { id: 182, type: "tf", q: "(   ) La fijación a proteínas plasmáticas determina la duración de acción del anestésico local.", correct: "V", exp: "Verdadero. A mayor unión a proteínas, mayor permanencia unida al receptor del canal." },
+    { id: 183, type: "tf", q: "(   ) La Bupivacaína posee una alta fijación a proteínas plasmáticas (alrededor del 95%).", correct: "V", exp: "Verdadero. Esta cualidad fundamenta su larga duración de acción." },
+    { id: 184, type: "tf", q: "(   ) La felipresina es un vasoconstrictor no simpaticomimético derivado sintético de la vasopresina.", correct: "V", exp: "Verdadero. Estimula los receptores V1 del músculo liso vascular." },
+    { id: 185, type: "tf", q: "(   ) La felipresina está totalmente indicada en pacientes embarazadas durante el tercer trimestre.", correct: "F", exp: "Falso. Puede desencadenar contracciones uterinas (efecto oxitócico) y está contraindicada." },
+    { id: 186, type: "tf", q: "(   ) La administración de un anestésico local produce un bloqueo reversible de la conducción nerviosa.", correct: "V", exp: "Verdadero. La función del nervio se recupera completamente sin daño estructural." },
+    { id: 187, type: "tf", q: "(   ) El shock anafiláctico cursa con vasodilatación masiva e hipotensión grave.", correct: "V", exp: "Verdadero. Liberación masiva de histamina causa colapso cardiovascular." },
+    { id: 188, type: "tf", q: "(   ) La Adrenalina es el fármaco de elección para contrarrestar la hipotensión y broncoconstricción anafiláctica.", correct: "V", exp: "Verdadero. Actúa como un antagonista fisiológico directo." },
+    { id: 189, type: "tf", q: "(   ) La administración oral de Amoxicilina se altera fuertemente en presencia de alimentos en el estómago.", correct: "F", exp: "Falso. La Amoxicilina es estable al ácido gástrico y se absorbe bien con o sin alimentos." },
+    { id: 190, type: "tf", q: "(   ) La dosis usual calculada de Amoxicilina para un adulto es de 500 mg a 875 mg cada 8 a 12 horas.", correct: "V", exp: "Verdadero. Corresponde al régimen antibacteriano habitual." },
+    { id: 191, type: "tf", q: "(   ) El uso prolongado de anestésicos tópicos como la Benzocaína no conlleva riesgo de sensibilización o reacciones alérgicas.", correct: "F", exp: "Falso. Por ser un éster tiene un riesgo moderado/alto de sensibilización alérgica." },
+    { id: 192, type: "tf", q: "(   ) El sistema nervioso simpático prepara al organismo para situaciones de 'lucha o huida'.", correct: "V", exp: "Verdadero. Activa las respuestas adaptativas fisiológicas ante estrés o peligro." },
+    { id: 193, type: "tf", q: "(   ) El sistema nervioso parasimpático predomina durante las situaciones de reposo, digestión y conservación de energía.", correct: "V", exp: "Verdadero. Promueve la homeostasis y el almacenamiento energético." },
+    { id: 194, type: "tf", q: "(   ) Las neuronas preganglionares tanto del simpático como del parasimpático liberan Acetilcolina.", correct: "V", exp: "Verdadero. Ambas vías sinaptizan en ganglios mediante receptores nicotínicos (Nn)." },
+    { id: 195, type: "tf", q: "(   ) La medula suprarrenal libera principalmente Adrenalina (80%) y Noradrenalina (20%) al torrente sanguíneo.", correct: "V", exp: "Verdadero. Funciona como un ganglio simpático modificado." },
+    { id: 196, type: "tf", q: "(   ) Los bloqueadores de canales de sodio actúan únicamente si el nervio no conduce impulsos.", correct: "F", exp: "Falso. Actúan mejor cuando el nervio conduce activamente (bloqueo dependiente del uso)." },
+    { id: 197, type: "tf", q: "(   ) Un cartucho de anestésico odontológico estándar contiene 1.8 mL de solución en la mayoría de países americanos.", correct: "V", exp: "Verdadero. Es el volumen comercial estándar en América." },
+    { id: 198, type: "tf", q: "(   ) La dosis de 4 mg/kg utilizada en los exámenes odontológicos fija en 180 mg la dosis máxima para un sujeto de 45 kg.", correct: "V", exp: "Verdadero. Cálculo: 45 kg × 4 mg/kg = 180 mg." },
+    { id: 199, type: "tf", q: "(   ) Un niño de 20 kg que recibe Amoxicilina a 50 mg/kg/día debe recibir un total diario de 1000 mg.", correct: "V", exp: "Verdadero. Cálculo: 20 kg × 50 mg/kg = 1000 mg." },
+    { id: 200, type: "tf", q: "(   ) La evaluación previa de la historia médica del paciente es la medida preventiva fundamental antes de administrar anestésicos locales.", correct: "V", exp: "Verdadero. Previene complicaciones hemodinámicas, farmacológicas o alérgicas." }
+  ];
+
+  // Renderizado dinámico de las preguntas
+  const container = document.getElementById('questionsContainer');
+
+  quizData.forEach((item) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `card-${item.id}`;
+
+    let optionsHtml = '';
+    if (item.type === 'mc') {
+      optionsHtml = Object.entries(item.opts).map(([key, val]) => `
+        <label class="option-label" id="label-${item.id}-${key}">
+          <input type="radio" name="q${item.id}" value="${key}">
+          <strong>${key.toUpperCase()})</strong> ${val}
+        </label>
+      `).join('');
+    } else {
+      optionsHtml = `
+        <label class="option-label" id="label-${item.id}-V">
+          <input type="radio" name="q${item.id}" value="V">
+          <strong>V</strong> - Verdadero
+        </label>
+        <label class="option-label" id="label-${item.id}-F">
+          <input type="radio" name="q${item.id}" value="F">
+          <strong>F</strong> - Falso
+        </label>
+      `;
+    }
+
+    card.innerHTML = `
+      <div class="question-title">Pregunta ${item.id}: ${item.q}</div>
+      <div class="options">${optionsHtml}</div>
+      <div class="explanation" id="exp-${item.id}">
+        <strong>Explicación:</strong> ${item.exp}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  // Función de evaluación e interactividad
+  function gradeQuiz() {
+    quizData.forEach((item) => {
+      const selected = document.querySelector(`input[name="q${item.id}"]:checked`);
+      const expBox = document.getElementById(`exp-${item.id}`);
+      
+      const labels = document.querySelectorAll(`#card-${item.id} .option-label`);
+      labels.forEach(l => l.classList.remove('correct', 'incorrect'));
+      expBox.style.display = 'none';
+
+      if (selected) {
+        const userChoice = selected.value;
+        const selectedLabel = document.getElementById(`label-${item.id}-${userChoice}`);
+        
+        if (userChoice === item.correct) {
+          selectedLabel.classList.add('correct');
+        } else {
+          selectedLabel.classList.add('incorrect');
+          const correctLabel = document.getElementById(`label-${item.id}-${item.correct}`);
+          if (correctLabel) correctLabel.classList.add('correct');
+          expBox.style.display = 'block';
+        }
+      } else {
+        const correctLabel = document.getElementById(`label-${item.id}-${item.correct}`);
+        if (correctLabel) correctLabel.classList.add('correct');
+        expBox.innerHTML = `<strong>Sin responder.</strong> ${item.exp}`;
+        expBox.style.display = 'block';
+      }
+    });
+
+    document.getElementById('reloadBtn').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
